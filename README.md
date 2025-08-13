@@ -5,10 +5,14 @@ A Model Context Protocol (MCP) server that provides tools for creating and manag
 ## Features
 
 - **Create Jira Tasks**: Create new issues with customizable fields
-- **Update Task Status**: Change the status of existing tasks
+- **Update Task Status**: Change the status of existing tasks with **auto-assignment**
 - **Update Task Progress**: Track progress with percentage and comments
 - **Get Task Details**: Retrieve comprehensive information about specific tasks
 - **List Tasks**: Search and filter tasks with various criteria
+
+### 🚀 Auto-Assignment Feature
+
+When you update a task status to work-in-progress statuses ("In Progress", "Scoping", "To Do"), the task will automatically be assigned to you if it's not already assigned. This helps track who is working on each task and streamlines the workflow.
 
 ## Prerequisites
 
