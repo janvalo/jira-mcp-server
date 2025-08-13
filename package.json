@@ -1,0 +1,32 @@
+{
+  "name": "mcp-jira-server",
+  "version": "1.0.0",
+  "description": "MCP server for Jira task management",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "jira",
+    "task-management"
+  ],
+  "author": "",
+  "license": "MIT"
+}
