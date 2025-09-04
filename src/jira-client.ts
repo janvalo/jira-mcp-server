@@ -314,7 +314,7 @@ export class JiraClient {
             }\n\n**Status:** ${status}\n**Assignee:** ${assignee}\n**Priority:** ${priority}\n**Progress:** ${progress}%\n**Type:** ${
               fields.issuetype?.name
             }\n**Project:** ${fields.project?.name}\n\n**Description:**\n${
-              fields.description || "No description provided"
+              this.parseAdfContent(fields.description)
             }\n\nView at: ${this.client.defaults.baseURL}/browse/${issue.key}`,
           },
         ],
@@ -385,6 +385,37 @@ export class JiraClient {
     } catch (error) {
       throw new Error(`Failed to list tasks: ${this.getErrorMessage(error)}`);
     }
+  }
+
+  private parseAdfContent(adfContent: any): string {
+    if (!adfContent) return "No description provided";
+    
+    if (typeof adfContent === 'string') {
+      return adfContent;
+    }
+    
+    if (adfContent.type === 'doc' && adfContent.content) {
+      return this.extractTextFromAdfNodes(adfContent.content);
+    }
+    
+    return "No description provided";
+  }
+
+  private extractTextFromAdfNodes(nodes: any[]): string {
+    if (!Array.isArray(nodes)) return "";
+    
+    return nodes.map(node => {
+      if (node.type === 'paragraph' && node.content) {
+        return this.extractTextFromAdfNodes(node.content);
+      }
+      if (node.type === 'text' && node.text) {
+        return node.text;
+      }
+      if (node.content) {
+        return this.extractTextFromAdfNodes(node.content);
+      }
+      return "";
+    }).join("").trim();
   }
 
   private getErrorMessage(error: any): string {

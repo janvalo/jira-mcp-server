@@ -137,14 +137,18 @@ export class JiraClient {
                     }
                 }
                 catch (assignError) {
-                    console.error('Failed to auto-assign task:', assignError instanceof Error ? assignError.message : String(assignError));
+                    console.error("Failed to auto-assign task:", assignError instanceof Error
+                        ? assignError.message
+                        : String(assignError));
                 }
             }
             return {
                 content: [
                     {
                         type: "text",
-                        text: `✅ Successfully updated status of ${args.issueKey} to "${args.status}"${args.comment ? `\n\n**Comment:** ${args.comment}` : ""}${shouldAutoAssign ? `\n\n**Auto-assigned to:** ${process.env.JIRA_EMAIL}` : ""}\n\nView at: ${this.client.defaults.baseURL}/browse/${args.issueKey}`,
+                        text: `✅ Successfully updated status of ${args.issueKey} to "${args.status}"${args.comment ? `\n\n**Comment:** ${args.comment}` : ""}${shouldAutoAssign
+                            ? `\n\n**Auto-assigned to:** ${process.env.JIRA_EMAIL}`
+                            : ""}\n\nView at: ${this.client.defaults.baseURL}/browse/${args.issueKey}`,
                     },
                 ],
             };
@@ -200,7 +204,7 @@ export class JiraClient {
                 content: [
                     {
                         type: "text",
-                        text: `**${issue.key}**: ${fields.summary}\n\n**Status:** ${status}\n**Assignee:** ${assignee}\n**Priority:** ${priority}\n**Progress:** ${progress}%\n**Type:** ${fields.issuetype?.name}\n**Project:** ${fields.project?.name}\n\n**Description:**\n${fields.description || "No description provided"}\n\nView at: ${this.client.defaults.baseURL}/browse/${issue.key}`,
+                        text: `**${issue.key}**: ${fields.summary}\n\n**Status:** ${status}\n**Assignee:** ${assignee}\n**Priority:** ${priority}\n**Progress:** ${progress}%\n**Type:** ${fields.issuetype?.name}\n**Project:** ${fields.project?.name}\n\n**Description:**\n${this.parseAdfContent(fields.description)}\n\nView at: ${this.client.defaults.baseURL}/browse/${issue.key}`,
                     },
                 ],
             };
@@ -257,6 +261,33 @@ export class JiraClient {
         catch (error) {
             throw new Error(`Failed to list tasks: ${this.getErrorMessage(error)}`);
         }
+    }
+    parseAdfContent(adfContent) {
+        if (!adfContent)
+            return "No description provided";
+        if (typeof adfContent === 'string') {
+            return adfContent;
+        }
+        if (adfContent.type === 'doc' && adfContent.content) {
+            return this.extractTextFromAdfNodes(adfContent.content);
+        }
+        return "No description provided";
+    }
+    extractTextFromAdfNodes(nodes) {
+        if (!Array.isArray(nodes))
+            return "";
+        return nodes.map(node => {
+            if (node.type === 'paragraph' && node.content) {
+                return this.extractTextFromAdfNodes(node.content);
+            }
+            if (node.type === 'text' && node.text) {
+                return node.text;
+            }
+            if (node.content) {
+                return this.extractTextFromAdfNodes(node.content);
+            }
+            return "";
+        }).join("").trim();
     }
     getErrorMessage(error) {
         if (error.response?.data?.errorMessages) {

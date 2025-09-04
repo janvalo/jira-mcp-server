@@ -63,6 +63,8 @@ export declare class JiraClient {
             text: string;
         }[];
     }>;
+    private parseAdfContent;
+    private extractTextFromAdfNodes;
     private getErrorMessage;
 }
 export {};
